@@ -14,7 +14,7 @@
 
 """Datastore models for Starter Project"""
 
-__author__ = 'alainv@google.com (Alain Vongsouvanh)'
+__author__ = 'nnd@google.com (Niket Desai)'
 
 
 from google.appengine.ext import db

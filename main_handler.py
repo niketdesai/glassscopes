@@ -22,6 +22,11 @@ import jinja2
 import logging
 import os
 import webapp2
+import json
+import urllib
+import re
+import oauth2
+
 
 from google.appengine.api import memcache
 from google.appengine.api import urlfetch
@@ -121,119 +126,73 @@ class MainHandler(webapp2.RequestHandler):
     memcache.set(key=self.userid, value=message, time=5)
     self.redirect('/')
 
-  def _insert_subscription(self):
-    """Subscribe the app."""
-    # self.userid is initialized in util.auth_required.
+  
+  def getHoroscopes(self):
+    scopes = ('aries', 'taurus', 'gemini', 'cancer', 
+              'leo', 'virgo', 'libra', 'scorpio',
+              'sagittarius', 'capricorn', 'aquarius', 'pisces')
+    horoscopes = {}
+    url = 'http://shine.yahoo.com/horoscope/'
+    
+    for scope in scopes:
+      scope_url = url + scope + '/'
+      url_file = urllib.urlopen(scope_url)
+      contents = url_file.read()
+      horoscopes[scope] = re.search('<div class="astro-tab-body">(.*)</div></div></div></div></div></div>', contents).group(1)
+      
+    return horoscopes
+  
+  
+  def createHoroscopeBundle(self, horoscopes):
+    scopeBundle = []
+    
+    # Add first Template card
     body = {
-        'collection': self.request.get('collection', 'timeline'),
-        'userToken': self.userid,
-        'callbackUrl': util.get_full_url(self, '/notify')
+        'notification': {'level': 'DEFAULT'},
+        'bundleID' : '2718281828',
+        'isBundleCover': True,
+        "html": "<article class=\"photo\">\n  <img src=\"http://thechalkboardmag.com/wp-content/uploads/2013/02/astrology-wheel-zodiac-horoscope-january-2013.jpeg\" width=\"100%\">\n  <div class=\"photo-overlay\"/>\n  <section>\n    <p class=\"text-auto-size\">Today's Horoscopes</p>\n  </section>\n</article>\n",
     }
-    # self.mirror_service is initialized in util.auth_required.
-    self.mirror_service.subscriptions().insert(body=body).execute()
-    return 'Application is now subscribed to updates.'
-
-  def _delete_subscription(self):
-    """Unsubscribe from notifications."""
-    collection = self.request.get('subscriptionId')
-    self.mirror_service.subscriptions().delete(id=collection).execute()
-    return 'Application has been unsubscribed.'
-
-  def _insert_item(self):
+    
+    scopeBundle.append(body)
+    
+    # Create remaining Horoscope Card Templates
+    # and add to scopeBundle
+    for scope in horoscopes:
+      body = {
+          # 'notification': {'level': 'DEFAULT'},
+          'bundleID' : '2718281828',
+          'isBundleCover': False
+      }
+      message = """
+                <article>\n
+                  <section>\n
+                    <p class=\"text-auto-size\">
+                      %(horoscope)s
+                    </p>\n
+                  </section>\n
+                  <footer>
+                    %(sign)s
+                  </footer>\n
+                </article>\n
+                """ % {'horoscope': horoscopes[sign], 'sign': sign}
+      body['html'] = message
+      
+      scopeBundle.append(body)
+    
+    return scopeBundle
+      
+      
+    
+  def sendHoroscopes(self, horoscope_bundle):
     """Insert a timeline item."""
     logging.info('Inserting timeline item')
-    body = {
-        'notification': {'level': 'DEFAULT'}
-    }
-    if self.request.get('html') == 'on':
-      body['html'] = [self.request.get('message')]
-    else:
-      body['text'] = self.request.get('message')
-
-    media_link = self.request.get('imageUrl')
-    if media_link:
-      if media_link.startswith('/'):
-        media_link = util.get_full_url(self, media_link)
-      resp = urlfetch.fetch(media_link, deadline=20)
-      media = MediaIoBaseUpload(
-          io.BytesIO(resp.content), mimetype='image/jpeg', resumable=True)
-    else:
-      media = None
-
+    
+    
     # self.mirror_service is initialized in util.auth_required.
     self.mirror_service.timeline().insert(body=body, media_body=media).execute()
-    return  'A timeline item has been inserted.'
-
-  def _insert_item_with_action(self):
-    """Insert a timeline item user can reply to."""
-    logging.info('Inserting timeline item')
-    body = {
-        'creator': {
-            'displayName': 'Python Starter Project',
-            'id': 'PYTHON_STARTER_PROJECT'
-        },
-        'text': 'Tell me what you had for lunch :)',
-        'notification': {'level': 'DEFAULT'},
-        'menuItems': [{'action': 'REPLY'}]
-    }
-    # self.mirror_service is initialized in util.auth_required.
-    self.mirror_service.timeline().insert(body=body).execute()
-    return 'A timeline item with action has been inserted.'
-
-  def _insert_item_all_users(self):
-    """Insert a timeline item to all authorized users."""
-    logging.info('Inserting timeline item to all users')
-    users = Credentials.all()
-    total_users = users.count()
-
-    if total_users > 10:
-      return 'Total user count is %d. Aborting broadcast to save your quota' % (
-          total_users)
-    body = {
-        'text': 'Hello Everyone!',
-        'notification': {'level': 'DEFAULT'}
-    }
-
-    batch_responses = _BatchCallback()
-    batch = BatchHttpRequest(callback=batch_responses.callback)
-    for user in users:
-      creds = StorageByKeyName(
-          Credentials, user.key().name(), 'credentials').get()
-      mirror_service = util.create_service('mirror', 'v1', creds)
-      batch.add(
-          mirror_service.timeline().insert(body=body),
-          request_id=user.key().name())
-
-    batch.execute(httplib2.Http())
-    return 'Successfully sent cards to %d users (%d failed).' % (
-        batch_responses.success, batch_responses.failure)
-
-  def _insert_contact(self):
-    """Insert a new Contact."""
-    logging.info('Inserting contact')
-    name = self.request.get('name')
-    image_url = self.request.get('imageUrl')
-    if not name or not image_url:
-      return 'Must specify imageUrl and name to insert contact'
-    else:
-      if image_url.startswith('/'):
-        image_url = util.get_full_url(self, image_url)
-      body = {
-          'id': name,
-          'displayName': name,
-          'imageUrls': [image_url]
-      }
-      # self.mirror_service is initialized in util.auth_required.
-      self.mirror_service.contacts().insert(body=body).execute()
-      return 'Inserted contact: ' + name
-
-  def _delete_contact(self):
-    """Delete a Contact."""
-    # self.mirror_service is initialized in util.auth_required.
-    self.mirror_service.contacts().delete(
-        id=self.request.get('id')).execute()
-    return 'Contact has been deleted.'
-
+    return  'A horoscope timeline bundle has been inserted.'
+  
 
 MAIN_ROUTES = [
     ('/', MainHandler)

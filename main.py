@@ -14,7 +14,7 @@
 
 """RequestHandlers for starter project."""
 
-__author__ = 'alainv@google.com (Alain Vongsouvanh)'
+__author__ = 'nnd@google.com (Niket Desai)'
 
 
 # Add the library location to the path
@@ -35,4 +35,5 @@ ROUTES = (
     SIGNOUT_ROUTES)
 
 
-app = webapp2.WSGIApplication(ROUTES)
+app = webapp2.WSGIApplication(ROUTES)    
+  
