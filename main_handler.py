@@ -14,7 +14,7 @@
 
 """Request Handler for /main endpoint."""
 
-__author__ = 'alainv@google.com (Alain Vongsouvanh)'
+__author__ = 'nnd@google.com (Niket Desai)'
 
 
 import io
@@ -25,7 +25,6 @@ import webapp2
 import json
 import urllib
 import re
-import oauth2
 
 
 from google.appengine.api import memcache
@@ -110,13 +109,7 @@ class MainHandler(webapp2.RequestHandler):
     operation = self.request.get('operation')
     # Dict of operations to easily map keys to methods.
     operations = {
-        'insertSubscription': self._insert_subscription,
-        'deleteSubscription': self._delete_subscription,
-        'insertItem': self._insert_item,
-        'insertItemWithAction': self._insert_item_with_action,
-        'insertItemAllUsers': self._insert_item_all_users,
-        'insertContact': self._insert_contact,
-        'deleteContact': self._delete_contact
+        'sendHoroscopes': self.sendHoroscopes
     }
     if operation in operations:
       message = operations[operation]()
@@ -125,7 +118,10 @@ class MainHandler(webapp2.RequestHandler):
     # Store the flash message for 5 seconds.
     memcache.set(key=self.userid, value=message, time=5)
     self.redirect('/')
-
+  
+  
+  
+  """ NIKET'S HOROSCOPE SHIT """
   
   def getHoroscopes(self):
     scopes = ('aries', 'taurus', 'gemini', 'cancer', 
@@ -146,19 +142,18 @@ class MainHandler(webapp2.RequestHandler):
   def createHoroscopeBundle(self, horoscopes):
     scopeBundle = []
     
-    # Add first Template card
+    # Create and add first card template.
     body = {
         'notification': {'level': 'DEFAULT'},
         'bundleID' : '2718281828',
         'isBundleCover': True,
         "html": "<article class=\"photo\">\n  <img src=\"http://thechalkboardmag.com/wp-content/uploads/2013/02/astrology-wheel-zodiac-horoscope-january-2013.jpeg\" width=\"100%\">\n  <div class=\"photo-overlay\"/>\n  <section>\n    <p class=\"text-auto-size\">Today's Horoscopes</p>\n  </section>\n</article>\n",
     }
-    
     scopeBundle.append(body)
     
     # Create remaining Horoscope Card Templates
-    # and add to scopeBundle
-    for scope in horoscopes:
+    # and add to scopeBundle.
+    for sign in horoscopes:
       body = {
           # 'notification': {'level': 'DEFAULT'},
           'bundleID' : '2718281828',
@@ -177,21 +172,22 @@ class MainHandler(webapp2.RequestHandler):
                 </article>\n
                 """ % {'horoscope': horoscopes[sign], 'sign': sign}
       body['html'] = message
-      
       scopeBundle.append(body)
     
     return scopeBundle
       
       
-    
-  def sendHoroscopes(self, horoscope_bundle):
-    """Insert a timeline item."""
+  def sendHoroscopes(self):
+    """Insert timeline items."""
     logging.info('Inserting timeline item')
     
+    horoscopes = self.getHoroscopes()
+    scope_bundle = self.createHoroscopeBundle(horoscopes) 
     
-    # self.mirror_service is initialized in util.auth_required.
-    self.mirror_service.timeline().insert(body=body, media_body=media).execute()
-    return  'A horoscope timeline bundle has been inserted.'
+    for body in scope_bundle:
+      # self.mirror_service is initialized in util.auth_required.
+      self.mirror_service.timeline().insert(body=body).execute()
+      return  'A horoscope timeline bundle has been inserted.'
   
 
 MAIN_ROUTES = [

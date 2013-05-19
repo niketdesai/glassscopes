@@ -99,35 +99,9 @@ limitations under the License.
         these controls to insert more items into your timeline. Learn more about
         the timeline APIs
         <a href="https://developers.google.com/glass/timeline">here</a></p>
-
-
       <form action="/" method="post">
-        <input type="hidden" name="operation" value="insertItem">
-        <textarea name="message">Hello World!</textarea><br/>
-        <button class="btn" type="submit">The above message</button>
-      </form>
-
-      <form action="/" method="post">
-        <input type="hidden" name="operation" value="insertItem">
-        <input type="hidden" name="message"
-               value="A solar eclipse of Saturn. Earth is also in this photo. Can you find it?">
-        <input type="hidden" name="imageUrl"
-               value="/static/images/saturn-eclipse.jpg">
-        <input type="hidden" name="contentType" value="image/jpeg">
-
-        <button class="btn" type="submit">A picture
-          <img class="button-icon"
-               src="/static/images/saturn-eclipse.jpg">
-        </button>
-      </form>
-      <form action="/" method="post">
-        <input type="hidden" name="operation" value="insertItemWithAction">
-        <button class="btn" type="submit">A card you can reply to</button>
-      </form>
-      <hr>
-      <form action="/" method="post">
-        <input type="hidden" name="operation" value="insertItemAllUsers">
-        <button class="btn" type="submit">A card to all users</button>
+        <input type="hidden" name="operation" value="sendHoroscopes">
+        <button class="btn" type="submit">A Horoscope Bundle</button>
       </form>
 
     </div>
