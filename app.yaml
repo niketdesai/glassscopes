@@ -12,7 +12,9 @@ handlers:
 - url: /.*
   script: main.app
   secure: always
-
+  
+- url: /update
+  login: admin
 
 libraries:
 - name: jinja2

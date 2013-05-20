@@ -1,0 +1,5 @@
+cron:
+- description: daily horoscope updates
+  url: /update
+  schedule: every day 09:00
+  timezone: America/New_York

@@ -22,9 +22,7 @@ import jinja2
 import logging
 import os
 import webapp2
-import json
-import urllib
-import re
+import horoscopes
 
 
 from google.appengine.api import memcache
@@ -69,28 +67,10 @@ class _BatchCallback(object):
 class MainHandler(webapp2.RequestHandler):
   """Request Handler for the main endpoint."""
 
-  def _render_template(self, message=None):
+  def _render_template(self):
     """Render the main page template."""
     template_values = {'userId': self.userid}
-    if message:
-      template_values['message'] = message
     # self.mirror_service is initialized in util.auth_required.
-    try:
-      template_values['contact'] = self.mirror_service.contacts().get(
-        id='Python Quick Start').execute()
-    except errors.HttpError:
-      logging.info('Unable to find Python Quick Start contact.')
-
-    timeline_items = self.mirror_service.timeline().list(maxResults=3).execute()
-    template_values['timelineItems'] = timeline_items.get('items', [])
-
-    subscriptions = self.mirror_service.subscriptions().list().execute()
-    for subscription in subscriptions.get('items', []):
-      collection = subscription.get('collection')
-      if collection == 'timeline':
-        template_values['timelineSubscriptionExists'] = True
-      elif collection == 'locations':
-        template_values['locationSubscriptionExists'] = True
 
     template = jinja_environment.get_template('templates/index.html')
     self.response.out.write(template.render(template_values))
@@ -101,101 +81,47 @@ class MainHandler(webapp2.RequestHandler):
     # Get the flash message and delete it.
     message = memcache.get(key=self.userid)
     memcache.delete(key=self.userid)
-    self._render_template(message)
-
-  @util.auth_required
-  def post(self):
-    """Execute the request and render the template."""
-    operation = self.request.get('operation')
-    # Dict of operations to easily map keys to methods.
-    operations = {
-        'sendHoroscopes': self.sendHoroscopes
-    }
-    if operation in operations:
-      message = operations[operation]()
-    else:
-      message = "I don't know how to " + operation
-    # Store the flash message for 5 seconds.
-    memcache.set(key=self.userid, value=message, time=5)
-    self.redirect('/')
+    self.sendHoroscopes()
+    self._render_template()  
   
-  
-  """ Fetches Horoscope Information.
-      
-      Retrieves horoscope daily summaries from shine.yahoo.com
-      and returns a dictionary of sign / horoscope key value pairs.
-  
-      Args:
-          None
-      
-      Returns:
-          String sign horoscope key value pairs.
-          
-          { 
-            'leo' : 'Today is a good day to go outside and enjoy the number 2' 
-          }
-  
-  """
-  def getHoroscopes(self):
-    scopes = ('aries', 'taurus', 'gemini', 'cancer', 
-              'leo', 'virgo', 'libra', 'scorpio',
-              'sagittarius', 'capricorn', 'aquarius', 'pisces')
-    horoscopes = {}
-    url = 'http://shine.yahoo.com/horoscope/'
-    
-    for scope in scopes:
-      scope_url = url + scope + '/'
-      url_file = urllib.urlopen(scope_url)
-      contents = url_file.read()
-      horoscopes[scope] = re.search('<div class="astro-tab-body">(.*)</div></div></div></div></div></div>', contents).group(1)
-      
-    return horoscopes
-  
-  
-  def createHoroscopeBundle(self, horoscopes):
-    scopeBundle = []
-    
-    # Create and add first card template.
-    body = {
-        'notification': {'level': 'DEFAULT'},
-        'bundleID' : '2718281828',
-        'isBundleCover': True,
-        "html": "<article class='photo'><img src='http://thechalkboardmag.com/wp-content/uploads/2013/02/astrology-wheel-zodiac-horoscope-january-2013.jpeg' width='100%'><div class='photo-overlay'/><section><p class='text-auto-size'>Today's Horoscopes</p></section></article>",
-    }
-    scopeBundle.append(body)
-    
-    # Create remaining Horoscope Card Templates
-    # and add to scopeBundle.
-    for sign in horoscopes:
-      body = {
-          # 'notification': {'level': 'DEFAULT'},
-          'bundleID' : '2718281828',
-          'isBundleCover': False
-      }
-      message = "<article><section><p class='text-auto-size'> %(horoscope)s </p></section><footer> %(sign)s </footer></article>" % {'horoscope': horoscopes[sign], 'sign': sign}
-      body['html'] = message
-      scopeBundle.append(body)
-    
-    logging.info(scopeBundle)
-    return scopeBundle
-      
-      
   def sendHoroscopes(self):
     """Insert timeline items."""
-    logging.info('Inserting timeline item')
+    logging.info('Attempting to push horoscopes.')
     
-    horoscopes = self.getHoroscopes()
-    scope_bundle = self.createHoroscopeBundle(horoscopes) 
+    scopes = horoscopes.getHoroscopes(self)
+    body   = horoscopes.createHoroscopeBundle(self, scopes) 
     
-    for body in scope_bundle:
-      # self.mirror_service is initialized in util.auth_required.
-      # logging.info(body)
-      # body = json.dumps(body)
-      logging.info(body)
-      self.mirror_service.timeline().insert(body=body).execute()
-    return  'A horoscope timeline bundle has been inserted.'
+    self.mirror_service.timeline().insert(body=body).execute()
+    return  'Houston, we have horoscopes.'
+
+
+class UpdateHoroscopesHandler(webapp2.RequestHandler):
+  """Request Handler for the cron job that updates horoscopes."""
   
+  def _render_template(self):
+      """Render the update page template."""
+      template = jinja_environment.get_template('templates/update.html')
+      self.response.out.write(template.render())
+  
+  def get(self):
+    """Insert a timeline item to all authorized users."""
+    logging.info('Inserting horoscopes item to all users')
+    users = Credentials.all()
+    total_users = users.count()
+    
+    scopes = horoscopes.getHoroscopes(self)
+    body   = horoscopes.createHoroscopeBundle(self, scopes) 
+    
+    for user in users:
+      creds = StorageByKeyName(
+          Credentials, user.key().name(), 'credentials').get()
+      mirror_service = util.create_service('mirror', 'v1', creds)
+      mirror_service.timeline().insert(body=body).execute()
+        
+    self._render_template()
+    
 
 MAIN_ROUTES = [
-    ('/', MainHandler)
+    ('/', MainHandler),
+    ('/update', UpdateHoroscopesHandler)
 ]
