@@ -120,9 +120,22 @@ class MainHandler(webapp2.RequestHandler):
     self.redirect('/')
   
   
+  """ Fetches Horoscope Information.
+      
+      Retrieves horoscope daily summaries from shine.yahoo.com
+      and returns a dictionary of sign / horoscope key value pairs.
   
-  """ NIKET'S HOROSCOPE SHIT """
+      Args:
+          None
+      
+      Returns:
+          String sign horoscope key value pairs.
+          
+          { 
+            'leo' : 'Today is a good day to go outside and enjoy the number 2' 
+          }
   
+  """
   def getHoroscopes(self):
     scopes = ('aries', 'taurus', 'gemini', 'cancer', 
               'leo', 'virgo', 'libra', 'scorpio',
@@ -147,7 +160,7 @@ class MainHandler(webapp2.RequestHandler):
         'notification': {'level': 'DEFAULT'},
         'bundleID' : '2718281828',
         'isBundleCover': True,
-        "html": "<article class=\"photo\">\n  <img src=\"http://thechalkboardmag.com/wp-content/uploads/2013/02/astrology-wheel-zodiac-horoscope-january-2013.jpeg\" width=\"100%\">\n  <div class=\"photo-overlay\"/>\n  <section>\n    <p class=\"text-auto-size\">Today's Horoscopes</p>\n  </section>\n</article>\n",
+        "html": "<article class='photo'><img src='http://thechalkboardmag.com/wp-content/uploads/2013/02/astrology-wheel-zodiac-horoscope-january-2013.jpeg' width='100%'><div class='photo-overlay'/><section><p class='text-auto-size'>Today's Horoscopes</p></section></article>",
     }
     scopeBundle.append(body)
     
@@ -159,18 +172,7 @@ class MainHandler(webapp2.RequestHandler):
           'bundleID' : '2718281828',
           'isBundleCover': False
       }
-      message = """
-                <article>\n
-                  <section>\n
-                    <p class=\"text-auto-size\">
-                      %(horoscope)s
-                    </p>\n
-                  </section>\n
-                  <footer>
-                    %(sign)s
-                  </footer>\n
-                </article>\n
-                """ % {'horoscope': horoscopes[sign], 'sign': sign}
+      message = "<article><section><p class='text-auto-size'> %(horoscope)s </p></section><footer> %(sign)s </footer></article>" % {'horoscope': horoscopes[sign], 'sign': sign}
       body['html'] = message
       scopeBundle.append(body)
     
@@ -187,8 +189,10 @@ class MainHandler(webapp2.RequestHandler):
     
     for body in scope_bundle:
       # self.mirror_service is initialized in util.auth_required.
+      # logging.info(body)
+      # body = json.dumps(body)
+      logging.info(body)
       self.mirror_service.timeline().insert(body=body).execute()
-    
     return  'A horoscope timeline bundle has been inserted.'
   
 
