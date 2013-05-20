@@ -174,6 +174,7 @@ class MainHandler(webapp2.RequestHandler):
       body['html'] = message
       scopeBundle.append(body)
     
+    logging.info(scopeBundle)
     return scopeBundle
       
       
@@ -187,7 +188,8 @@ class MainHandler(webapp2.RequestHandler):
     for body in scope_bundle:
       # self.mirror_service is initialized in util.auth_required.
       self.mirror_service.timeline().insert(body=body).execute()
-      return  'A horoscope timeline bundle has been inserted.'
+    
+    return  'A horoscope timeline bundle has been inserted.'
   
 
 MAIN_ROUTES = [
