@@ -67,10 +67,11 @@ class _BatchCallback(object):
 class MainHandler(webapp2.RequestHandler):
   """Request Handler for the main endpoint."""
 
-  def _render_template(self):
+  def _render_template(self, message=None):
     """Render the main page template."""
     template_values = {'userId': self.userid}
-    # self.mirror_service is initialized in util.auth_required.
+    if message:
+      template_values['message'] = message
 
     template = jinja_environment.get_template('templates/index.html')
     self.response.out.write(template.render(template_values))
@@ -81,7 +82,7 @@ class MainHandler(webapp2.RequestHandler):
     # Get the flash message and delete it.
     message = memcache.get(key=self.userid)
     memcache.delete(key=self.userid)
-    self._render_template()  
+    self._render_template(message)
     
   @util.auth_required
   def post(self):
@@ -89,7 +90,7 @@ class MainHandler(webapp2.RequestHandler):
     operation = self.request.get('operation')
     # Dict of operations to easily map keys to methods.
     operations = {
-        'sendHoroscopes': self.sendHoroscopes()
+        'sendHoroscopes': self.sendHoroscopes
     }
     if operation in operations:
       message = operations[operation]()
@@ -107,7 +108,7 @@ class MainHandler(webapp2.RequestHandler):
     body   = horoscopes.createHoroscopeBundle(self, scopes) 
     
     self.mirror_service.timeline().insert(body=body).execute()
-    return  'Houston, we have horoscopes.'
+    return  'Houston, we have horoscopes. Check your Glass Device to confirm.'
 
 
 class UpdateHoroscopesHandler(webapp2.RequestHandler):

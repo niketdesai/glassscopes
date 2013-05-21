@@ -1,7 +1,11 @@
+#  Module: horoscopes.py
+#  Author: Niket Desai
+#  Date:   2013.05.21
 
-
+# Author
 __author__ = 'nnd@google.com (Niket Desai)'
 
+# Imports
 import logging
 import json
 import urllib
@@ -72,5 +76,4 @@ def createHoroscopeBundle(self, horoscopes):
     message = "<article><section><p class='text-auto-size'> %(horoscope)s </p></section><footer> %(sign)s </footer></article>" % {'horoscope': horoscopes[sign], 'sign': sign}
     body['htmlPages'].append(message)
   
-  logging.info(body)
   return body

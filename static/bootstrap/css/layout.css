@@ -53,6 +53,7 @@
  h2 {
    font-size: 12pt;
    color: #fff;
+   rgb(207, 207, 207)
    text-transform: uppercase;
    letter-spacing: 1px;
    padding: 10px;
@@ -60,10 +61,12 @@
  p{
    font-weight: lighter;
    color: #fff;
+   rgb(207, 207, 207)
    padding: 0 10px;
+   line-height: 19px;
  }
  a {
-   border-bottom: 1px solid #b97145;
+   /* border-bottom: 1px solid #b97145; */
    color: #354754;
  }
  
@@ -75,8 +78,8 @@
 /*------------------------------------*\
 	$STYLE
 \*------------------------------------*/ 
-.button-icon {
-  max-width: 75px;
+.hero-unit {
+  opacity: 0.5;
 }
 
 .tile {
@@ -86,9 +89,19 @@
 }
 
 .btn {
-  width: 100%;
+  width: 200px;
+  margin: 10px 10px;
 }
- 
+
+.quote {
+  border-left: 1px solid #fff;
+  margin:10px 10px;
+  padding: 0 20px;
+}
+.author {
+  font-style: italic;
+  text-align: right;
+}
 
 /* ============================= */
 /* ! Layout for mobile version   */
