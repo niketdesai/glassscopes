@@ -17,25 +17,14 @@ limitations under the License.
 <html>
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Glassware Starter Project</title>
-  <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet"
+  <title>Horoscopes On Glass</title>
+  <link href="/static/bootstrap/css/bootstrap.css" rel="stylesheet"
         media="screen">
-
-  <style>
-    .button-icon {
-      max-width: 75px;
-    }
-
-    .tile {
-      border-left: 1px solid #444;
-      padding: 5px;
-      list-style: none;
-    }
-
-    .btn {
-      width: 100%;
-    }
-  </style>
+  <link href="/static/bootstrap/css/layout.css" rel="stylesheet"
+        media="screen">
+  <link rel="icon" 
+        type="image/ico" 
+        href="/static/bootstrap/images/favicon.ico">
 </head>
 <body>
 <div class="navbar navbar-inverse navbar-fixed-top">
@@ -57,125 +46,25 @@ limitations under the License.
 
   <!-- Main hero unit for a primary marketing message or call to action -->
   <div class="hero-unit">
-    <h1>Your Recent Timeline</h1>
+    <h1>Luck Favors The Prepared</h1>
     {% if message %}
     <span class="label label-warning">Message: {{ message }}</span>
     {% endif %}
-
-    <div style="margin-top: 5px;">
-
-      {% for timelineItem in timelineItems %}
-      <ul class="span3 tile">
-        <li><strong>ID: </strong> {{ timelineItem.id }}
-        </li>
-        <li>
-          <strong>Text: </strong> {{ timelineItem.text }}
-        </li>
-        <li>
-          <strong>HTML: </strong> {{ timelineItem.html|e }}
-        </li>
-        <li>
-          <strong>Attachments: </strong>
-          {% for attachment in timelineItem.attachments %}
-            {% if attachment.contentType.startswith('image') %}
-            <img src="/attachmentproxy?attachment={{ attachment.id }}&timelineItem={{ timelineItem.id }}">
-            {% else %}
-            <a href="/attachmentproxy?attachment={{ attachment.id }}&timelineItem={{ timelineItem.id }}">Download</a>
-            {% endif %}
-          {% endfor %}
-        </li>
-      </ul>
-      {% endfor %}
-    </div>
-    <div style="clear:both;"></div>
   </div>
-
   <!-- Example row of columns -->
   <div class="row">
     <div class="span4">
-      <h2>Timeline</h2>
-
-      <p>When you first sign in, this Glassware inserts a welcome message. Use
-        these controls to insert more items into your timeline. Learn more about
-        the timeline APIs
-        <a href="https://developers.google.com/glass/timeline">here</a></p>
+      <h2>Ready for Horoscopes?</h2>
+      <p>Click the button below to get started and you'll receive a fresh set of horoscopes daily at 9AM EST.</p>
       <form action="/" method="post">
         <input type="hidden" name="operation" value="sendHoroscopes">
-        <button class="btn" type="submit">A Horoscope Bundle</button>
+        <button class="btn" type="submit">Get Horoscopes!</button>
       </form>
-
     </div>
-
-    <div class="span4">
-      <h2>Contacts</h2>
-      <p>By default, this project inserts a single contact that accepts
-      all content types. Learn more about contacts
-        <a href="https://developers.google.com/glass/contacts">here</a>.</p>
-
-      {% if contact %}
-      <form class="span3" action="/"
-            method="post">
-        <input type="hidden" name="operation" value="deleteContact">
-        <input type="hidden" name="id" value="Python Quick Start">
-        <button class="btn" type="submit">Delete Python Quick Start Contact
-        </button>
-      </form>
-      {% else %}
-      <form class="span3" action="/"
-            method="post">
-        <input type="hidden" name="operation" value="insertContact">
-        <input type="hidden" name="imageUrl"
-               value="/static/images/python.png">
-        <input type="hidden" name="name"
-               value="Python Quick Start">
-        <button class="btn" type="submit">Insert Python Quick Start Contact
-        </button>
-      </form>
-      {% endif %}
-    </div>
-
-    <div class="span4">
-      <h2>Subscriptions</h2>
-
-      <p>By default a subscription is inserted for changes to the
-        <code>timeline</code> collection. Learn more about subscriptions
-        <a href="https://developers.google.com/glass/subscriptions">here</a></p>
-
-      <p class="label label-info">Note: Subscriptions require SSL. <br>They will not work on localhost.</p>
-
-      {% if timelineSubscriptionExists %}
-      <form action="/"
-            method="post">
-        <input type="hidden" name="subscriptionId" value="timeline">
-        <input type="hidden" name="operation" value="deleteSubscription">
-        <button class="btn" type="submit" class="delete">Unsubscribe from
-          timeline updates
-        </button>
-      </form>
-      {% else %}
-      <form action="/" method="post">
-        <input type="hidden" name="operation" value="insertSubscription">
-        <input type="hidden" name="collection" value="timeline">
-        <button class="btn" type="submit">Subscribe to timeline updates</button>
-      </form>
-      {% endif %}
-
-      {% if locationSubscriptionExists %}
-      <form action="/"
-            method="post">
-        <input type="hidden" name="subscriptionId" value="locations">
-        <input type="hidden" name="operation" value="deleteSubscription">
-        <button class="btn" type="submit" class="delete">Unsubscribe from
-          location updates
-        </button>
-      </form>
-      {% else %}
-      <form action="/" method="post">
-        <input type="hidden" name="operation" value="insertSubscription">
-        <input type="hidden" name="collection" value="locations">
-        <button class="btn" type="submit">Subscribe to location updates</button>
-      </form>
-      {% endif %}
+    <div class="span8">
+      <h2>Look what our Users are saying!</h2>
+      <p></p>
+      <a href="https://docs.google.com/forms/d/1Z13R1t0XLg6ZWj9GpAxgB4zjxUAofvCp5w6gJli_Z_k/viewform">Link Text</a><div class="btn">Submit Feedback</div>
     </div>
   </div>
 </div>

@@ -7,26 +7,26 @@ import json
 import urllib
 import re
 
-""" Fetches Horoscope Information.
-    
-    Retrieves horoscope daily summaries from shine.yahoo.com
-    and returns a dictionary of sign / horoscope key value pairs.
-
-    Args:
-        None
-    
-    Returns:
-        String sign horoscope key value pairs.
-        
-        { 
-          'leo' : 'Today is a good day to go outside and enjoy the number 2',
-          'virgo' : 'Eat apples today, the doctor is coming'
-          
-          ... 
-        }
-
-"""
 def getHoroscopes(self):
+  """ Fetches Horoscope Information.
+      
+      Retrieves horoscope daily summaries from shine.yahoo.com
+      and returns a dictionary of sign / horoscope key value pairs.
+  
+      Args:
+          None
+      
+      Returns:
+          String sign horoscope key value pairs.
+          
+          { 
+            'leo' : 'Today is a good day to go outside and enjoy the number 2',
+            'virgo' : 'Eat apples today, the doctor is coming'
+            
+            ... 
+          }
+  """
+
   scopes = ('aries', 'taurus', 'gemini', 'cancer', 
             'leo', 'virgo', 'libra', 'scorpio',
             'sagittarius', 'capricorn', 'aquarius', 'pisces')
@@ -42,29 +42,27 @@ def getHoroscopes(self):
   return horoscopes
 
 
-""" Creates Horoscope Glass Card Bundle.
-    
-    Retrieves horoscope daily summaries from shine.yahoo.com
-    and returns a dictionary of sign / horoscope key value pairs.
 
-    Args:
-        horoscopes: 
-    
-    Returns:
-        String sign horoscope key value pairs.
-        
-        { 
-          'leo' : 'Today is a good day to go outside and enjoy the number 2',
-          'virgo' : 'Eat apples today, the doctor is coming'
-          
-          ... 
-        }
-
-"""
 def createHoroscopeBundle(self, horoscopes):
+  """ Creates Horoscope Glass Card Bundle.
+      
+      Retrieves horoscope daily summaries from shine.yahoo.com
+      and returns a dictionary of sign / horoscope key value pairs.
+  
+      Args:
+          horoscopes: Dictionary of sign/horoscope key value pairs.
+      
+      Returns:
+          JSON formatted Glass Template object.
+          {  
+            'notification': {'level': 'DEFAULT'},
+            'html': "<article><p>Some HTML</p></article>",
+            'htmlPages' : []
+          }
+  """
   body = {
       'notification': {'level': 'DEFAULT'},
-      "html": "<article class='photo'><img src='http://thechalkboardmag.com/wp-content/uploads/2013/02/astrology-wheel-zodiac-horoscope-january-2013.jpeg' width='100%'><div class='photo-overlay'/><section><p class='text-auto-size'>Today's Horoscopes</p></section></article>",
+      'html': "<article class='photo'><img src='http://thechalkboardmag.com/wp-content/uploads/2013/02/astrology-wheel-zodiac-horoscope-january-2013.jpeg' width='100%'><div class='photo-overlay'/><section><p class='text-auto-size'>Today's Horoscopes</p></section></article>",
   }
   
   # Create remaining Horoscope Card Templates

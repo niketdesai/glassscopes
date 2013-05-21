@@ -8,13 +8,15 @@ handlers:
 - url: /static
   static_dir: static
   secure: always
+  
+- url: /update
+  script: main.app
+  login: admin
 
 - url: /.*
   script: main.app
   secure: always
   
-- url: /update
-  login: admin
 
 libraries:
 - name: jinja2

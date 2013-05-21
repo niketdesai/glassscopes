@@ -1,0 +1,114 @@
+/*  Fresher than 2,718 lemons perfectly
+ *  squeezed over Air Jordans strapped to
+ *  Blake Griffin's feet while he's about
+ *  to jam a basketball in over Lebron's
+ *  head...this CSS is brought to you by
+ *  Niket Desai.
+ *
+ *
+ *  That Might Work (c) 2013 v1.1
+ */
+ 
+ 
+ /*------------------------------------*\
+ 	TABLE OF CONTENTS
+ \*------------------------------------*/ 
+ /*
+ 
+ SITESETUP
+ COLOURSCHEME
+ GLOBALS
+ STYLE
+ */
+  
+ /* ============================== */
+ /* ! Layout for desktop version   */
+ /* ============================== */
+/*------------------------------------*\
+	$SITESETUP
+\*------------------------------------*/
+ body {
+   background: url(../../images/space.jpg) no-repeat center center fixed; 
+   -webkit-background-size: cover;
+   -moz-background-size: cover;
+   -o-background-size: cover;
+   background-size: cover;
+ }
+ .span4, .span8, .span12 {
+   background-color: rgba(73, 114, 124, 0.35);
+   
+   -webkit-border-radius: 5px;
+   -moz-border-radius: 5px;
+   -o-border-radius: 5px;
+   border-radius: 5px;
+ }
+ h1, h2, h3, h4, h5, h6, p, li, a {
+   font-family: 'Helvetica', 'Arial', sans-serif;
+ }
+ h1 {
+   font-size: 36pt;
+   color: #354754;
+   padding: 10px 0;
+}
+ h2 {
+   font-size: 12pt;
+   color: #fff;
+   text-transform: uppercase;
+   letter-spacing: 1px;
+   padding: 10px;
+ }
+ p{
+   font-weight: lighter;
+   color: #fff;
+   padding: 0 10px;
+ }
+ a {
+   border-bottom: 1px solid #b97145;
+   color: #354754;
+ }
+ 
+/*------------------------------------*\
+	$COLOURSCHEME
+\*------------------------------------*/ 
+ 
+ 
+/*------------------------------------*\
+	$STYLE
+\*------------------------------------*/ 
+.button-icon {
+  max-width: 75px;
+}
+
+.tile {
+  border-left: 1px solid #444;
+  padding: 5px;
+  list-style: none;
+}
+
+.btn {
+  width: 100%;
+}
+ 
+
+/* ============================= */
+/* ! Layout for mobile version   */
+/* ============================= */
+
+@media handheld, only screen and (max-width: 767px) {	}
+
+
+/* ========================================== */
+/* ! Provide higher res assets for iPhone 4   */
+/* ========================================== */
+
+@media only screen and (-webkit-min-device-pixel-ratio: 2) { 
+
+/*	.logo {
+		background: url(logo2x.jpg) no-repeat;
+		background-size: 212px 303px;
+	}*/
+
+}
+
+
+

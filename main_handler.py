@@ -81,8 +81,23 @@ class MainHandler(webapp2.RequestHandler):
     # Get the flash message and delete it.
     message = memcache.get(key=self.userid)
     memcache.delete(key=self.userid)
-    self.sendHoroscopes()
     self._render_template()  
+    
+  @util.auth_required
+  def post(self):
+    """Execute the request and render the template."""
+    operation = self.request.get('operation')
+    # Dict of operations to easily map keys to methods.
+    operations = {
+        'sendHoroscopes': self.sendHoroscopes()
+    }
+    if operation in operations:
+      message = operations[operation]()
+    else:
+      message = "I don't know how to " + operation
+    # Store the flash message for 5 seconds.
+    memcache.set(key=self.userid, value=message, time=5)
+    self.redirect('/')
   
   def sendHoroscopes(self):
     """Insert timeline items."""
